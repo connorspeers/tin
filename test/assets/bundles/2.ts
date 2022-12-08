@@ -1,0 +1,1 @@
+const two: string = "two";

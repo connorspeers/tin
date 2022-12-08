@@ -33,7 +33,7 @@ export function assets(dir?: string): Handler {
     const path = joinPath(assetsDir, ctx.path);
 
     const base = basename(path);
-    if (base.startsWith("_") ||  base.startsWith(".")) {
+    if (base.startsWith(".")) {
       throw new Deno.errors.NotFound();
     }
     

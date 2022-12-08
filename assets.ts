@@ -31,22 +31,33 @@ export function assets(dir?: string): Handler {
   ) => {
     const ctx = useContext(req, conn);
     const path = joinPath(assetsDir, ctx.path);
+    const base = basename(ctx.url.pathname);
 
-    const base = basename(path);
-    if (base.startsWith("_") ||  base.startsWith(".")) {
+    if (base.startsWith(".")) {
       throw new Deno.errors.NotFound();
     }
     
     const stat1 = await stat(path);
-    if (stat1 && stat1.isFile && path.endsWith(".html")) {
+    if (stat1 && stat1.isFile && base === "index.html") {
+      const url = new URL(ctx.url);
+      url.pathname = joinPath(url.pathname, "..");
+      return Response.redirect(url.href);
+    }
+    if (stat1 && stat1.isFile && base.endsWith(".html")) {
       const url = new URL(ctx.url);
       url.pathname = url.pathname.slice(0, -5);
       return Response.redirect(url.href);
-    } else if (stat1 && stat1.isFile) {
+    }
+    if (stat1 && stat1.isFile) {
       return await serveFile(req, path);
     }
 
     const stat2 = await stat(path + ".html");
+    if (stat2 && stat2.isFile && base === "index") {
+      const url = new URL(ctx.url);
+      url.pathname = joinPath(url.pathname, "..");
+      return Response.redirect(url.href);
+    }
     if (stat2 && stat2.isFile) {
       return await serveFile(req, path + ".html");
     }

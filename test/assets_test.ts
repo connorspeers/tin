@@ -1,9 +1,9 @@
 // Copyright 2022 Connor Speers. All rights reserved. MIT License.
 
 import { assertEquals, assertRejects } from "./test_deps.ts";
-import { assets } from "./assets.ts";
-import type { ConnInfo } from "./deps.ts";
-import { router } from "./router.ts";
+import { assets } from "../assets.ts";
+import type { ConnInfo } from "../deps.ts";
+import { router } from "../router.ts";
 
 const connInfo: ConnInfo = {
   localAddr: {

@@ -1,9 +1,9 @@
 // Copyright 2022 Connor Speers. All rights reserved. MIT License.
 
 import { assertEquals, assertRejects } from "./test_deps.ts";
-import { assets } from "../assets.ts";
-import type { ConnInfo } from "../deps.ts";
-import { router } from "../router.ts";
+import { assets } from "./assets.ts";
+import type { ConnInfo } from "./deps.ts";
+import { router } from "./router.ts";
 
 const connInfo: ConnInfo = {
   localAddr: {
@@ -72,3 +72,25 @@ Deno.test("works inside a router", async () => {
   const res = await app2(req, connInfo);
   assertEquals(await res.text(), "index\n");
 });
+
+Deno.test(
+  "404 for requests to files that start with an underscore",
+  async () => {
+    const req = new Request("http://_/_hidden.txt");
+    await assertRejects(
+      async () => await app(req, connInfo),
+      Deno.errors.NotFound,
+    );
+  },
+);
+
+Deno.test(
+  "404 for requests to files that start with a period",
+  async () => {
+    const req = new Request("http://_/.hidden.txt");
+    await assertRejects(
+      async () => await app(req, connInfo),
+      Deno.errors.NotFound,
+    );
+  },
+);

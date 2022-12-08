@@ -14,7 +14,7 @@ export type RouterHandler = (
 
 /** The shape of a router, mapping route path to its corresponding handler. */
 export interface RouterShape {
-  [x: string]: RouterHandler | RouterHandler[] | RouterShape | null;
+  [x: string]: RouterHandler | RouterHandler[] | null;
 }
 
 /** Routes requests between multiple handlers based on request path. */
@@ -35,12 +35,6 @@ export function router<Shape extends RouterShape>(
     let handlers = shape[k]!;
     if (typeof handlers === "function") {
       handlers = [handlers];
-    } else if (
-      handlers &&
-      !Array.isArray(handlers) &&
-      typeof handlers === "object"
-    ) {
-      handlers = [router(handlers)];
     }
     routes.set(k.split("/").map(decodeURIComponent), handlers);
   }

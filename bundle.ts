@@ -13,7 +13,8 @@ export interface BundleOptions {
  * - The output file path is the same as the input file path but with a .js
  *   extension
  * - If the `watch` option is true, files are watched for changes; when updates
- *   occur to the source file, its bundle is regenerated
+ *   occur to the source file or any of its dependencies, its bundle is
+ *   regenerated
  * - When the path is a directory, files that begin with an underscore will be
  *   skipped
  * - Unless the `silent` option is `true`, errors will be logged to the console

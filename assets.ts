@@ -8,7 +8,7 @@ import {
   serveFile,
   fromFileUrl,
 } from "./deps.ts";
-import { useContext } from "./context.ts";
+import { context } from "./context.ts";
 
 async function stat(path: string): Promise<Deno.FileInfo | null> {
   try {
@@ -29,7 +29,7 @@ export function assets(dir?: string): Handler {
     req: Request,
     conn: ConnInfo,
   ) => {
-    const ctx = useContext(req, conn);
+    const ctx = context(req, conn);
     const path = joinPath(assetsDir, ctx.path);
     const base = basename(ctx.url.pathname);
 

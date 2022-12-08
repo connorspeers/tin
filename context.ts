@@ -24,7 +24,7 @@ export type Context<T = {}> = ConnInfo & T & {
  * Returns the Context instance for a given Request and ConnInfo pair. If the
  * `connInfo` instance is already a Context, it's returned unmodified.
  */
-export function useContext(req: Request, connInfo: ConnInfo): Context {
+export function context(req: Request, connInfo: ConnInfo): Context {
   if ((connInfo as Context)[_context]) {
     return connInfo as Context;
   }

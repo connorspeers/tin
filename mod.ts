@@ -11,7 +11,7 @@ export {
 
 export {
   type Context,
-  useContext,
+  context,
 } from "./context.ts";
 
 export {

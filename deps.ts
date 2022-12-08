@@ -13,4 +13,5 @@ export {
 export {
   join as joinPath,
   fromFileUrl,
+  basename,
 } from "https://deno.land/std@0.163.0/path/mod.ts";

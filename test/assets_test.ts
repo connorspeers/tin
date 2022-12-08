@@ -72,3 +72,25 @@ Deno.test("works inside a router", async () => {
   const res = await app2(req, connInfo);
   assertEquals(await res.text(), "index\n");
 });
+
+Deno.test(
+  "404 for requests to files that start with an underscore",
+  async () => {
+    const req = new Request("http://_/_hidden.txt");
+    await assertRejects(
+      async () => await app(req, connInfo),
+      Deno.errors.NotFound,
+    );
+  },
+);
+
+Deno.test(
+  "404 for requests to files that start with a period",
+  async () => {
+    const req = new Request("http://_/.hidden.txt");
+    await assertRejects(
+      async () => await app(req, connInfo),
+      Deno.errors.NotFound,
+    );
+  },
+);

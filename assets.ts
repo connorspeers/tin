@@ -3,6 +3,7 @@
 import {
   type ConnInfo,
   type Handler,
+  basename,
   joinPath,
   serveFile,
   fromFileUrl,
@@ -30,6 +31,11 @@ export function assets(dir?: string): Handler {
   ) => {
     const ctx = useContext(req, conn);
     const path = joinPath(assetsDir, ctx.path);
+
+    const base = basename(path);
+    if (base.startsWith("_") ||  base.startsWith(".")) {
+      throw new Deno.errors.NotFound();
+    }
     
     const stat1 = await stat(path);
     if (stat1 && stat1.isFile && path.endsWith(".html")) {

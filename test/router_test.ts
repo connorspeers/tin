@@ -291,20 +291,3 @@ Deno.test("unrouted/routed path on context", async () => {
   const res3 = await testRouter(req3, connInfo);
   assertEquals(await res3.text(), "/index|/");
 });
-
-Deno.test("nested objects become nested routers", async () => {
-  const testRouter = router({
-    "a/*": {
-      "b": () => new Response("yep"),
-      "*": () => new Response("yep yep"),
-    },
-  });
-
-  const req1 = new Request("https://_/a/b");
-  const res1 = await testRouter(req1, connInfo);
-  assertEquals(await res1.text(), "yep");
-
-  const req2 = new Request("https://_/a/b/c");
-  const res2 = await testRouter(req2, connInfo);
-  assertEquals(await res2.text(), "yep yep");
-});

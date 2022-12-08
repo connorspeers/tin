@@ -73,24 +73,28 @@ Deno.test("works inside a router", async () => {
   assertEquals(await res.text(), "index\n");
 });
 
-Deno.test(
-  "404 for requests to files that start with an underscore",
-  async () => {
-    const req = new Request("http://_/_hidden.txt");
-    await assertRejects(
-      async () => await app(req, connInfo),
-      Deno.errors.NotFound,
-    );
-  },
-);
+Deno.test("404 for files that start with a period", async () => {
+  const req = new Request("http://_/.hidden.txt");
+  await assertRejects(
+    async () => await app(req, connInfo),
+    Deno.errors.NotFound,
+  );
+});
 
-Deno.test(
-  "404 for requests to files that start with a period",
-  async () => {
-    const req = new Request("http://_/.hidden.txt");
-    await assertRejects(
-      async () => await app(req, connInfo),
-      Deno.errors.NotFound,
-    );
-  },
-);
+Deno.test("redirects existing *.html requests to URL w/o ext", async () => {
+  const req = new Request("http://_/not-nested.html");
+  const res = await app(req, connInfo);
+  assertEquals(res.status, 302);
+  assertEquals(res.headers.get("location"), "http://_/not-nested");
+});
+
+Deno.test("redirects /**/index(.html) to /**/", async () => {
+  const req = new Request("http://_/index.html");
+  const res = await app(req, connInfo);
+  assertEquals(res.status, 302);
+  assertEquals(res.headers.get("location"), "http://_/");
+  const req2 = new Request("http://_/index");
+  const res2 = await app(req2, connInfo);
+  assertEquals(res2.status, 302);
+  assertEquals(res2.headers.get("location"), "http://_/");
+});

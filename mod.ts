@@ -5,11 +5,6 @@ export {
 } from "./assets.ts";
 
 export {
-  type BundleOptions,
-  bundle,
-} from "./bundle.ts";
-
-export {
   type Context,
   context,
 } from "./context.ts";

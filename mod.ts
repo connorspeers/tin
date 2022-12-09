@@ -1,6 +1,7 @@
 // Copyright 2022 Connor Speers. All rights reserved. MIT License.
 
 export {
+  type AssetsInit,
   assets,
 } from "./assets.ts";
 

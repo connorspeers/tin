@@ -10,6 +10,11 @@ export {
 } from "./context.ts";
 
 export {
+  type PrepOptions,
+  prep,
+} from "./prep.ts";
+
+export {
   type RouterHandler,
   type RouterShape,
   type Router,

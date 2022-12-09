@@ -7,7 +7,7 @@ import {
   resolve,
   walk,
   bundle,
-basename,
+  basename,
 } from "./deps.ts";
 
 export interface PrepOptions {

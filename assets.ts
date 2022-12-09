@@ -19,10 +19,9 @@ async function stat(path: string): Promise<Deno.FileInfo | null> {
 }
 
 /** Creates a handler for serving static assets. */
-export function assets(dir?: string): Handler {
-  let assetsDir = dir ?? "assets";
-  if (assetsDir.startsWith("file://")) {
-    assetsDir = fromFileUrl(assetsDir);
+export function assets(dir: string): Handler {
+  if (dir.startsWith("file://")) {
+    dir = fromFileUrl(dir);
   }
 
   return async (
@@ -30,10 +29,10 @@ export function assets(dir?: string): Handler {
     conn: ConnInfo,
   ) => {
     const ctx = context(req, conn);
-    const path = joinPath(assetsDir, ctx.path);
+    const path = joinPath(dir, ctx.path);
     const base = basename(ctx.url.pathname);
 
-    if (base.startsWith(".")) {
+    if (base.startsWith(".") || base.endsWith(".ts")) {
       throw new Deno.errors.NotFound();
     }
     

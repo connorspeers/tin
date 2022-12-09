@@ -76,7 +76,7 @@ async function process(input: string, watch?: boolean) {
     return;
   }
   processing.add(input);
-  const output = input.slice(0, -3) + ".js";
+  const output = input + ".js";
 
   try {
     const stat = await Deno.stat(input);

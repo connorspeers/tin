@@ -10,6 +10,8 @@ import {
 } from "./deps.ts";
 
 export interface PrepOptions {
+  /** The directory to prep. Default: `"assets"` */
+  dir?: string;
   /**
    * Toggles file system watching for updates. Default: `true`
    */
@@ -27,8 +29,12 @@ export interface PrepOptions {
  * extension instead of a ".ts" extension. This WILL overwrite old JavaScript
  * bundles, so consider this operation destructive.
  */
-export async function prep(dir = "assets", opt?: PrepOptions): Promise<void> {
-  dir = resolve(dir);
+export async function prep(opt?: PrepOptions): Promise<void> {
+  const dirUrl = (
+    opt?.dir?.startsWith("file://") ? opt.dir
+    : toFileUrl(resolve(opt?.dir ?? "assets"))
+  );
+  const dir = fromFileUrl(dirUrl);
   const stat = await Deno.stat(dir);
   if (!stat.isDirectory) {
     throw new Error(`Not a directory: ${dir}`);
@@ -58,12 +64,13 @@ const processing = new Set<string>();
 
 /** Input must end in ".ts". */
 async function process(input: string, watch?: boolean) {
-  input = resolve(input);  
+  const inputUrl = toFileUrl(input).href;
+  input = fromFileUrl(inputUrl);
   if (processing.has(input)) {
     return;
   }
   processing.add(input);
-  const output = input.slice(0, -3);
+  const output = input.slice(0, -3) + ".js";
 
   try {
     const stat = await Deno.stat(input);
@@ -90,7 +97,7 @@ async function process(input: string, watch?: boolean) {
 
   let deps = [input];
   try {
-    deps = await customGraph(input);
+    deps = await customGraph(inputUrl);
     const code = await customBundle(input);
     await Deno.writeTextFile(output, code);
   } catch (err) {
@@ -113,21 +120,33 @@ async function process(input: string, watch?: boolean) {
   })();
 }
 
+/** Input should be a file URL. */
 async function customGraph(input: string): Promise<string[]> {
   return (await createGraph(input)).modules
     .filter(m => m.specifier.startsWith("file://"))
     .map(m => fromFileUrl(m.specifier));
 }
 
+/** Input should NOT be a file URL. */
 async function customBundle(input: string): Promise<string> {
-  return (await bundle(toFileUrl(input), {
+  return (await bundle(input, {
     allowRemote: true,
     type: "module",
-    compilerOptions: {
-      inlineSources: false,
-      inlineSourceMap: false,
-      sourceMap: false,
+    // https://github.com/denoland/deno_emit/issues/61#issuecomment-1250137994
+    load: async (specifier) => {
+      const res = await fetch(specifier);
+      const headers: Record<string, string> = {};
+      for (const [k, v] of res.headers.entries()) {
+        if (!headers[k]) {
+          headers[k] = v;
+        }
+      }
+      return {
+        kind: "module",
+        specifier: res.url,
+        headers: headers,
+        content: await res.text(),
+      };
     },
-    // Load?
   })).code;
 }

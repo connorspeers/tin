@@ -1,1 +1,0 @@
-const one: string = "one";

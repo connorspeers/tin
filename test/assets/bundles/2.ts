@@ -1,1 +1,0 @@
-const two: string = "two";

@@ -1,6 +1,6 @@
 // Copyright 2022 Connor Speers. All rights reserved. MIT License.
 
-import { assertEquals } from "./test_deps.ts";
+import { assertEquals, assertRejects } from "./test_deps.ts";
 import { prep } from "../prep.ts";
 import { fromFileUrl } from "../deps.ts";
 
@@ -9,6 +9,8 @@ Deno.test("basic test", async () => {
   const o1 = fromFileUrl(import.meta.resolve("./assets/bundle1.js"));
   const o2 = fromFileUrl(import.meta.resolve("./assets/bundle2.js"));
   const o3 = fromFileUrl(import.meta.resolve("./assets/nested/bundle3.js"));
+  const o4 = fromFileUrl(import.meta.resolve("./assets/_bundle4.js"));
+  const o5 = fromFileUrl(import.meta.resolve("./assets/.bundle5.js"));
   await prep({
     dir: i,
     watch: false,
@@ -20,9 +22,11 @@ Deno.test("basic test", async () => {
   await Deno.remove(o2);
   await Deno.remove(o3);
   const answer = "//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiJ9\n";
-  assertEquals(r1, answer); // FIXME
-  assertEquals(r2, answer); // FIXME
-  assertEquals(r3, answer); // FIXME
+  assertEquals(r1, answer);
+  assertEquals(r2, answer);
+  assertEquals(r3, answer);
+  await assertRejects(() => Deno.stat(o4));
+  await assertRejects(() => Deno.stat(o5));
 });
 
 // TODO: Rebundle when a non-prepped dependency is updated

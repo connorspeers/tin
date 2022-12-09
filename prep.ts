@@ -7,6 +7,7 @@ import {
   resolve,
   walk,
   bundle,
+basename,
 } from "./deps.ts";
 
 export interface PrepOptions {
@@ -41,7 +42,11 @@ export async function prep(opt?: PrepOptions): Promise<void> {
   }
 
   for await (const entry of walk(dir)) {
-    if (entry.isFile && entry.path.endsWith(".ts")) {
+    if (
+      entry.isFile &&
+      entry.path.endsWith(".ts") &&
+      entry.name[0] !== "." && entry.name[0] !== "_"
+    ) {
       await process(entry.path, opt?.watch !== false);
     }
   }
@@ -52,7 +57,8 @@ export async function prep(opt?: PrepOptions): Promise<void> {
   (async () => {
     for await (const evt of Deno.watchFs(dir)) {
       for (const path of evt.paths) {
-        if (path.endsWith(".ts")) {
+        const base = basename(path);
+        if (base[0] !== "." && base[0] !== "_" && path.endsWith(".ts")) {
           await process(path, true);
         }
       }

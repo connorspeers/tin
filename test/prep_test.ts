@@ -6,11 +6,11 @@ import { fromFileUrl } from "../deps.ts";
 
 Deno.test("basic test", async () => {
   const i = import.meta.resolve("./public");
-  const o1 = fromFileUrl(import.meta.resolve("./public/bundle1.js"));
-  const o2 = fromFileUrl(import.meta.resolve("./public/bundle2.js"));
-  const o3 = fromFileUrl(import.meta.resolve("./public/nested/bundle3.js"));
-  const o4 = fromFileUrl(import.meta.resolve("./public/_bundle4.js"));
-  const o5 = fromFileUrl(import.meta.resolve("./public/.bundle5.js"));
+  const o1 = fromFileUrl(import.meta.resolve("./public/bundle1.ts.js"));
+  const o2 = fromFileUrl(import.meta.resolve("./public/bundle2.ts.js"));
+  const o3 = fromFileUrl(import.meta.resolve("./public/nested/bundle3.ts.js"));
+  const o4 = fromFileUrl(import.meta.resolve("./public/_bundle4.ts.js"));
+  const o5 = fromFileUrl(import.meta.resolve("./public/.bundle5.ts.js"));
   await prep({
     dir: i,
     watch: false,

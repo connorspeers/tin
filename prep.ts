@@ -24,7 +24,8 @@ export interface PrepOptions {
  * files, recursively.
  *
  * This function returns after the initial bundling. Then, the source files are
- * watched for changes which will trigger a re-bundle.
+ * watched for changes which will trigger a re-bundle, unless the `watch` option
+ * is explicitly `false`.
  *
  * The output file paths are equal to the input file paths but with a ".js"
  * extension instead of a ".ts" extension. This WILL overwrite old JavaScript
@@ -76,7 +77,7 @@ async function process(input: string, watch?: boolean) {
     return;
   }
   processing.add(input);
-  const output = input.slice(0, -3) + ".js";
+  const output = input + ".js";
 
   try {
     const stat = await Deno.stat(input);

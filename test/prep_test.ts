@@ -5,12 +5,12 @@ import { prep } from "../prep.ts";
 import { fromFileUrl } from "../deps.ts";
 
 Deno.test("basic test", async () => {
-  const i = import.meta.resolve("./assets");
-  const o1 = fromFileUrl(import.meta.resolve("./assets/bundle1.js"));
-  const o2 = fromFileUrl(import.meta.resolve("./assets/bundle2.js"));
-  const o3 = fromFileUrl(import.meta.resolve("./assets/nested/bundle3.js"));
-  const o4 = fromFileUrl(import.meta.resolve("./assets/_bundle4.js"));
-  const o5 = fromFileUrl(import.meta.resolve("./assets/.bundle5.js"));
+  const i = import.meta.resolve("./public");
+  const o1 = fromFileUrl(import.meta.resolve("./public/bundle1.js"));
+  const o2 = fromFileUrl(import.meta.resolve("./public/bundle2.js"));
+  const o3 = fromFileUrl(import.meta.resolve("./public/nested/bundle3.js"));
+  const o4 = fromFileUrl(import.meta.resolve("./public/_bundle4.js"));
+  const o5 = fromFileUrl(import.meta.resolve("./public/.bundle5.js"));
   await prep({
     dir: i,
     watch: false,

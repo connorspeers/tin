@@ -107,8 +107,9 @@ Deno.test("doesn't serve TS files by default", async () => {
   );
 });
 
-// Deno.test("does serve TS files when 'serveTS' is true", async () => {
-//   const app2 = assets(import.meta.resolve("public"), );
-//   const req = new Request("")
-//   assertRejects
-// });
+Deno.test("does serve TS files when 'serveTs' is true", async () => {
+  const app2 = assets(import.meta.resolve("./public"), { serveTs: true });
+  const req = new Request("http://_/bundle1.ts");
+  const res = await app2(req, connInfo);
+  assertEquals(await res.text(), "export {};\n");
+});

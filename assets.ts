@@ -18,8 +18,21 @@ async function stat(path: string): Promise<Deno.FileInfo | null> {
   }
 }
 
-/** Creates a handler for serving static assets. */
-export function assets(dir: string): Handler {
+export interface AssetsInit {
+  /**
+   * When true, TypeScript files will be served instead of skipped. Default:
+   * `false`
+   */
+  serveTs?: boolean;
+}
+
+/**
+ * Creates a handler for serving static assets.
+ *
+ * By default, TypeScript files will be treated as if they aren't there. To
+ * serve them like normal, use the `serveTs` option.
+ */
+export function assets(dir: string, init?: AssetsInit): Handler {
   if (dir.startsWith("file://")) {
     dir = fromFileUrl(dir);
   }
@@ -32,7 +45,10 @@ export function assets(dir: string): Handler {
     const path = joinPath(dir, ctx.path);
     const base = basename(ctx.url.pathname);
 
-    if (base.startsWith(".") || base.endsWith(".ts")) {
+    if (
+      base.startsWith(".") ||
+      (!init?.serveTs && base.endsWith(".ts"))
+    ) {
       throw new Deno.errors.NotFound();
     }
     

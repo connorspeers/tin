@@ -11,10 +11,7 @@ Deno.test("basic test", async () => {
   const o3 = fromFileUrl(import.meta.resolve("./public/nested/bundle3.ts.js"));
   const o4 = fromFileUrl(import.meta.resolve("./public/_bundle4.ts.js"));
   const o5 = fromFileUrl(import.meta.resolve("./public/.bundle5.ts.js"));
-  await prep({
-    dir: i,
-    watch: false,
-  });
+  await prep(i, { watch: false });
   const r1 = await Deno.readTextFile(o1);
   const r2 = await Deno.readTextFile(o2);
   const r3 = await Deno.readTextFile(o3);

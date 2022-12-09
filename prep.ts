@@ -11,8 +11,6 @@ import {
 } from "./deps.ts";
 
 export interface PrepOptions {
-  /** The directory to prep. Default: `"assets"` */
-  dir?: string;
   /**
    * Toggles file system watching for updates. Default: `true`
    */
@@ -31,12 +29,12 @@ export interface PrepOptions {
  * extension instead of a ".ts" extension. This WILL overwrite old JavaScript
  * bundles, so consider this operation destructive.
  */
-export async function prep(opt?: PrepOptions): Promise<void> {
+export async function prep(dir: string, opt?: PrepOptions): Promise<void> {
   const dirUrl = (
-    opt?.dir?.startsWith("file://") ? opt.dir
-    : toFileUrl(resolve(opt?.dir ?? "assets"))
+    dir.startsWith("file://") ? dir
+    : toFileUrl(resolve(dir))
   );
-  const dir = fromFileUrl(dirUrl);
+  dir = fromFileUrl(dirUrl);
   const stat = await Deno.stat(dir);
   if (!stat.isDirectory) {
     throw new Error(`Not a directory: ${dir}`);

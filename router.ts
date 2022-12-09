@@ -1,7 +1,7 @@
 // Copyright 2022 Connor Speers. All rights reserved. MIT License.
 
 import type { ConnInfo } from "./deps.ts";
-import { type Context, useContext } from "./context.ts";
+import { type Context, context } from "./context.ts";
 
 /**
  * Handler type supported by the Router. Compatible with Deno's standard Handler
@@ -43,7 +43,7 @@ export function router<Shape extends RouterShape>(
     req: Request,
     conn: ConnInfo,
   ): Promise<Response> => {
-    const ctx = useContext(req, conn);
+    const ctx = context(req, conn);
     const path = ctx.path.slice(1).split("/").map(decodeURIComponent);
     
     for (const [pattern, handlers] of routes.entries()) {

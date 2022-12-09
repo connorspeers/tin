@@ -8,7 +8,7 @@ import {
   serveFile,
   fromFileUrl,
 } from "./deps.ts";
-import { useContext } from "./context.ts";
+import { context } from "./context.ts";
 
 async function stat(path: string): Promise<Deno.FileInfo | null> {
   try {
@@ -18,22 +18,37 @@ async function stat(path: string): Promise<Deno.FileInfo | null> {
   }
 }
 
-/** Creates a handler for serving static assets. */
-export function assets(dir?: string): Handler {
-  let assetsDir = dir ?? "assets";
-  if (assetsDir.startsWith("file://")) {
-    assetsDir = fromFileUrl(assetsDir);
+export interface AssetsInit {
+  /**
+   * When true, TypeScript files will be served instead of skipped. Default:
+   * `false`
+   */
+  serveTs?: boolean;
+}
+
+/**
+ * Creates a handler for serving static assets.
+ *
+ * By default, TypeScript files will be treated as if they aren't there. To
+ * serve them like normal, use the `serveTs` option.
+ */
+export function assets(dir: string, init?: AssetsInit): Handler {
+  if (dir.startsWith("file://")) {
+    dir = fromFileUrl(dir);
   }
 
   return async (
     req: Request,
     conn: ConnInfo,
   ) => {
-    const ctx = useContext(req, conn);
-    const path = joinPath(assetsDir, ctx.path);
+    const ctx = context(req, conn);
+    const path = joinPath(dir, ctx.path);
     const base = basename(ctx.url.pathname);
 
-    if (base.startsWith(".")) {
+    if (
+      base.startsWith(".") ||
+      (!init?.serveTs && base.endsWith(".ts"))
+    ) {
       throw new Deno.errors.NotFound();
     }
     

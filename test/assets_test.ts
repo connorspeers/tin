@@ -18,7 +18,7 @@ const connInfo: ConnInfo = {
   },
 };
 
-const app = assets(import.meta.resolve("./assets"));
+const app = assets(import.meta.resolve("./public"));
 
 Deno.test("serves regular file", async () => {
   const req = new Request("http://_/file.txt");
@@ -97,4 +97,19 @@ Deno.test("redirects /**/index(.html) to /**/", async () => {
   const res2 = await app(req2, connInfo);
   assertEquals(res2.status, 302);
   assertEquals(res2.headers.get("location"), "http://_/");
+});
+
+Deno.test("doesn't serve TS files by default", async () => {
+  const req = new Request("http://_/bundle1.ts");
+  await assertRejects(
+    async () => await app(req, connInfo),
+    Deno.errors.NotFound,
+  );
+});
+
+Deno.test("does serve TS files when 'serveTs' is true", async () => {
+  const app2 = assets(import.meta.resolve("./public"), { serveTs: true });
+  const req = new Request("http://_/bundle1.ts");
+  const res = await app2(req, connInfo);
+  assertEquals(await res.text(), "export {};\n");
 });

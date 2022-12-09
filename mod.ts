@@ -6,8 +6,13 @@ export {
 
 export {
   type Context,
-  useContext,
+  context,
 } from "./context.ts";
+
+export {
+  type PrepOptions,
+  prep,
+} from "./prep.ts";
 
 export {
   type RouterHandler,

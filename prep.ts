@@ -10,9 +10,11 @@ import {
   basename,
 } from "./deps.ts";
 
+const prepping = new Map<string, Deno.FsWatcher>();
+
 export interface PrepOptions {
   /**
-   * Toggles file system watching for updates. Default: `true`
+   * Toggles file system watching for updates. Default: `false`
    */
   watch?: boolean;
 }
@@ -21,9 +23,9 @@ export interface PrepOptions {
  * Bundles the TypeScript files in the given directory into adjacent JavaScript
  * files, recursively.
  *
- * This function returns after the initial bundling. Then, the source files are
- * watched for changes which will trigger a re-bundle, unless the `watch` option
- * is explicitly `false`.
+ * This function returns after the initial bundling. Then, if the `watch` option
+ * is `true`, the source files are watched for changes which will trigger a
+ * re-bundle.
  *
  * The output file paths are equal to the input file paths but with a ".js"
  * extension instead of a ".ts" extension. This WILL overwrite old JavaScript
@@ -39,6 +41,9 @@ export async function prep(dir: string, opt?: PrepOptions): Promise<void> {
   if (!stat.isDirectory) {
     throw new Error(`Not a directory: ${dir}`);
   }
+  if (prepping.has(dir)) {
+    return;
+  }
 
   for await (const entry of walk(dir)) {
     if (
@@ -46,15 +51,19 @@ export async function prep(dir: string, opt?: PrepOptions): Promise<void> {
       entry.path.endsWith(".ts") &&
       entry.name[0] !== "." && entry.name[0] !== "_"
     ) {
-      await process(entry.path, opt?.watch !== false);
+      await process(entry.path, opt?.watch);
     }
   }
 
-  if (opt?.watch === false) {
+  if (!opt?.watch) {
     return;
   }
+
+  const watcher = Deno.watchFs(dir);
+  prepping.set(dir, watcher);
+
   (async () => {
-    for await (const evt of Deno.watchFs(dir)) {
+    for await (const evt of watcher) {
       for (const path of evt.paths) {
         const base = basename(path);
         if (base[0] !== "." && base[0] !== "_" && path.endsWith(".ts")) {
@@ -65,7 +74,7 @@ export async function prep(dir: string, opt?: PrepOptions): Promise<void> {
   })();
 }
 
-const processing = new Set<string>();
+const processing = new Map<string, Deno.FsWatcher | null>();
 
 /** Input must end in ".ts". */
 async function process(input: string, watch?: boolean) {
@@ -74,7 +83,7 @@ async function process(input: string, watch?: boolean) {
   if (processing.has(input)) {
     return;
   }
-  processing.add(input);
+  processing.set(input, null);
   const output = input + ".js";
 
   try {
@@ -113,16 +122,39 @@ async function process(input: string, watch?: boolean) {
     console.warn(err);
   }
 
+  // The first conditional is needed in case stopPrep was called before the
+  // bundle was complete. If that happens, disregard the watch option
+  if (!processing.has(input)) {
+    return;
+  }
   if (!watch) {
     processing.delete(input);
     return;
   }
+
+  const watcher = Deno.watchFs(deps);
+  processing.set(input, watcher);
+
   (async () => {
-    for await (const _ of Deno.watchFs(deps)) {
+    for await (const _ of watcher) {
       processing.delete(input);
       return await process(input, true);
     }
   })();
+}
+
+/** Closes all prep watch loops. This is used to clean up during testing. */
+export function stopPrep() {
+  for (const [k, v] of prepping.entries()) {
+    v.close();
+    prepping.delete(k);
+  }
+  for (const [k, v] of processing.entries()) {
+    if (v) {
+      v.close();
+    }
+    processing.delete(k);
+  }
 }
 
 /** Input should be a file URL. */

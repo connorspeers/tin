@@ -4,6 +4,7 @@ import { assertEquals, assertRejects } from "./test_deps.ts";
 import { assets } from "../assets.ts";
 import type { ConnInfo } from "../deps.ts";
 import { router } from "../router.ts";
+import { prepTest, prepWatchTest } from "./_prep.ts";
 
 const connInfo: ConnInfo = {
   localAddr: {
@@ -113,3 +114,17 @@ Deno.test("does serve TS files when 'serveTs' is true", async () => {
   const res = await app2(req, connInfo);
   assertEquals(await res.text(), "export {};\n");
 });
+
+Deno.test("prep", async () => {
+  assets(import.meta.resolve("./public"), { prep: true });
+  await new Promise(r => setTimeout(r, 1000)); // Give it some time to prep
+  await prepTest();
+});
+
+Deno.test("prep + watch", async () => {
+  assets(import.meta.resolve("./public"), { prep: true, watch: true });
+  await new Promise(r => setTimeout(r, 1000));
+  await prepWatchTest();
+});
+
+// TODO: What happens when you serve ../../../etc paths

@@ -9,6 +9,7 @@ import {
   fromFileUrl,
 } from "./deps.ts";
 import { context } from "./context.ts";
+import { prep } from "./prep.ts";
 
 async function stat(path: string): Promise<Deno.FileInfo | null> {
   try {
@@ -20,6 +21,16 @@ async function stat(path: string): Promise<Deno.FileInfo | null> {
 
 export interface AssetsInit {
   /**
+   * If true, prep's the given assets directory using the {@linkcode prep}
+   * function. Default: `false`
+   */
+  prep?: boolean;
+  /**
+   * If true along with the `prep` option, watches the assets for changes and
+   * re-preps on updates.
+   */
+  watch?: boolean;
+  /**
    * When true, TypeScript files will be served instead of skipped. Default:
    * `false`
    */
@@ -27,7 +38,12 @@ export interface AssetsInit {
 }
 
 /**
- * Creates a handler for serving static assets.
+ * Creates a handler for serving static assets from a directory.
+ *
+ * If the `prep` option is specified, the assets directory will be prepped, i.e.
+ * TypeScript files will be bundled into adjacent javascript files. If the
+ * `watch` option is also true, the TypeScript assets and their dependencies
+ * will be watched for updates, which trigger a rebundle.
  *
  * By default, TypeScript files will be treated as if they aren't there. To
  * serve them like normal, use the `serveTs` option.
@@ -35,6 +51,10 @@ export interface AssetsInit {
 export function assets(dir: string, init?: AssetsInit): Handler {
   if (dir.startsWith("file://")) {
     dir = fromFileUrl(dir);
+  }
+
+  if (init?.prep) {
+    prep(dir, init); // Don't await
   }
 
   return async (

@@ -13,6 +13,7 @@ export {
 export {
   type PrepOptions,
   prep,
+  stopPrep,
 } from "./prep.ts";
 
 export {

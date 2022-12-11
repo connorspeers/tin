@@ -3,7 +3,7 @@ import { assertEquals, assertRejects } from "./test_deps.ts";
 import { prep, stopPrep } from "../prep.ts";
 
 const o1 = fromFileUrl(import.meta.resolve("./public/bundle1.ts.js"));
-const o2 = fromFileUrl(import.meta.resolve("./public/bundle2.ts.js"));
+const o2 = fromFileUrl(import.meta.resolve("./public/bundle2.tsx.js"));
 const o3 = fromFileUrl(import.meta.resolve("./public/nested/bundle3.ts.js"));
 // These two shouldn't exist
 const o4 = fromFileUrl(import.meta.resolve("./public/_bundle4.ts.js"));

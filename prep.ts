@@ -103,7 +103,7 @@ async function process(input: string, watch?: boolean) {
         try {
           await Deno.remove(output);
         } catch (err) {
-          console.warn(err);
+          console.warn(`[${output}]`, err);
         }
       }
     } catch {
@@ -113,7 +113,7 @@ async function process(input: string, watch?: boolean) {
     return;
   }
 
-  let deps = [input];
+  let deps: string[] = [];
   try {
     deps = await customGraph(inputUrl);
     const code = await customBundle(input);
@@ -123,7 +123,10 @@ async function process(input: string, watch?: boolean) {
       processing.delete(input);
       throw err;
     }
-    console.warn(err);
+    if (!deps.length) {
+      deps = [input];
+    }
+    console.warn(`[${input}]`, err);
   }
 
   // The first conditional is needed in case stopPrep was called before the

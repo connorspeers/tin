@@ -11,6 +11,10 @@ export {
 } from "./context.ts";
 
 export {
+  cx,
+} from "./iso.ts";
+
+export {
   type PrepOptions,
   prep,
   stopPrep,

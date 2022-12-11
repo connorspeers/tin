@@ -66,7 +66,11 @@ export async function prep(dir: string, opt?: PrepOptions): Promise<void> {
     for await (const evt of watcher) {
       for (const path of evt.paths) {
         const base = basename(path);
-        if (base[0] !== "." && base[0] !== "_" && path.endsWith(".ts")) {
+        if (
+          base[0] !== "." &&
+          base[0] !== "_" &&
+          (path.endsWith(".ts") || path.endsWith(".tsx"))
+        ) {
           await process(path, true);
         }
       }

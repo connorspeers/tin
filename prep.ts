@@ -48,7 +48,7 @@ export async function prep(dir: string, opt?: PrepOptions): Promise<void> {
   for await (const entry of walk(dir)) {
     if (
       entry.isFile &&
-      entry.path.endsWith(".ts") &&
+      (entry.path.endsWith(".ts") || entry.path.endsWith(".tsx")) &&
       entry.name[0] !== "." && entry.name[0] !== "_"
     ) {
       await process(entry.path, opt?.watch);
